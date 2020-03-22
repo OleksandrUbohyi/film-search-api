@@ -1,4 +1,37 @@
-ver 5
-ver 3 changed
+<!DOCTYPE html>
+<html lang="ru">
 
-длинный комментарий
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Film Search API</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css"
+        integrity="sha384-ggOyR0iXCbMQv3Xipma34MD+dH/1fQ784/j6cY/iJTQUOhcWr7x9JvoRxT2MZw1T" crossorigin="anonymous">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div class="navbar">
+        <div class="container">
+            <a href="index.html">My Film Search</a>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="jumbotron">
+            <h3>Поиск фильмов</h3>
+            <form action="" id="search-form">
+                <input type="text" class="form-control" id="search-text" placeholder="Введите название фильма">
+            </form>
+        </div>
+    </div>
+
+    <div class="container">
+        <div id="movies" class="row"></div>
+    </div>
+
+    <script src="js/script.js"></script>
+</body>
+
+</html>
