@@ -8,7 +8,7 @@ function apiSearch(e) {
     let searchText = document.querySelector('#search-text').value;
     const apiKey = '1983cecd00be37d37b4510809b6e5780';
     let server = `https://api.themoviedb.org/3/search/multi?api_key=${apiKey}&language=ru&query=${searchText}`;
-    movieContainer.innerHTML = 'Загрузка...';
+    movieContainer.innerHTML = '<div class="spinner"></div>';
 
     fetch(server) // фетч принимает 2 параметра - юрл и необъязательный массив с опциями
         .then(function (val) {
