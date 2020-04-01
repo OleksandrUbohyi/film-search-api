@@ -26,7 +26,6 @@ function apiSearch(e) {
             return val.json(); // возвращает ПРОМИС, json() вместо JSON.parse
         })// then может принимать 2 функции - первая - resolve, вторая - reject ошибка
         .then(function (output) {
-            console.log(output);
             let inner = "";
 
             if (output.results.length === 0) {
@@ -88,15 +87,16 @@ function addDataAttributes() { // добавление дата-аттрибут
 function showFullInfo() { //запрос детальной информации о фильме
 
     let url = '';
+    const movieType = this.dataset.type;
+    const movieId = this.dataset.id;
 
-    if (this.dataset.type === 'movie') {
+    if (movieType === 'movie') {
         url = `https://api.themoviedb.org/3/movie/${this.dataset.id}?api_key=1983cecd00be37d37b4510809b6e5780&language=ru`;
-    } else if (this.dataset.type === 'tv') {
+    } else if (movieType === 'tv') {
         url = `https://api.themoviedb.org/3/tv/${this.dataset.id}?api_key=1983cecd00be37d37b4510809b6e5780&language=ru`;
     } else {
         movieContainer.innerHTML = "<h2 class='col-12 text-center text-danger'>Произошла ошибка (Не кино и не сериал). Повторите позже</h2>";
     }
-
 
     fetch(url) // фетч принимает 2 параметра - юрл и необъязательный массив с опциями
         .then(function (val) {
@@ -107,11 +107,13 @@ function showFullInfo() { //запрос детальной информации
             return val.json(); // возвращает ПРОМИС, json() вместо JSON.parse
         })// then может принимать 2 функции - первая - resolve, вторая - reject ошибка
         .then(function (output) {
-            console.log(output);
+            const imgSource = output.poster_path ? `${posterPrefix + output.poster_path}` : '../img/no-poster.jpg';
+
             movieContainer.innerHTML = `
                 <h4 class="col-12 text-center text-success">${output.name || output.title}</h4>
                 <div class="col-4 mb-4">
-                    <img src="${posterPrefix + output.poster_path}" alt="${output.name || output.title}">
+                
+                    <img src="${imgSource}" alt="${output.name || output.title}">
 
                     ${output.homepage ? `<p class="text-center">
                                             <a href="${output.homepage}" target="_blank">Официальная страница</a>
@@ -133,21 +135,56 @@ function showFullInfo() { //запрос детальной информации
 
                     ${(output.number_of_seasons) ? `<p>Количество сезонов: ${output.number_of_seasons} </p>` : ''}
 
-                    <p><b>Описание:</b> ${output.overview}</p>
+                    <p><b>Описание:</b> ${output.overview || 'Описание отсутствует'}</p>
                     
-                    
+                    <br>
+                    <div id='youtube'></div>
+                </div>`;
 
-                </div>
-            `;
+            getVideo(movieType, movieId);
+
         })
+
         .catch(function (err) {
             movieContainer.innerHTML = 'Упс, что-то пошло не так!';
             console.log('Ошибка ' + err);
         });
 }
 
+function getVideo(type, id) {
+    let youtube = movieContainer.querySelector('#youtube');
+
+
+    fetch(`https://api.themoviedb.org/3/${type}/${id}/videos?api_key=1983cecd00be37d37b4510809b6e5780&language=ru`)
+        .then(val => {
+            if (val.status !== 200) {
+                return Promise.reject(val); // в первом then (всегда )убираем ошибки в catch
+            }
+            return val.json(); // и переводим в объект
+        })
+        .then((output) => {
+            console.log(output);
+            let videoFrame = "<h5 class='text-center text-primary'>Трейлеры</h5>";
+
+            if (output.results.length === 0) {
+                videoFrame = '<b>Трейлеров нету</b>';
+            }
+
+            output.results.forEach(item => {
+                videoFrame += `<iframe width="560" height="315" src="https://www.youtube.com/embed/${item.key}" frameborder="0" allow="accelerometer; autoplay; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>`;
+            });
+            youtube.innerHTML = videoFrame;
+        })
+        .catch((reason) => {
+            youtube.innerHTML = 'Видео отсутствует!';
+            console.error(reason || reason.status);
+        });
+
+
+}
+
 document.addEventListener('DOMContentLoaded', function () { // запрос трендов
-    fetch('https://api.themoviedb.org/3/trending/all/week?api_key=1983cecd00be37d37b4510809b6e5780&language=ru') 
+    fetch('https://api.themoviedb.org/3/trending/all/week?api_key=1983cecd00be37d37b4510809b6e5780&language=ru')
         .then(function (val) {
             if (val.status !== 200) {
                 return Promise.reject(val);
@@ -156,7 +193,6 @@ document.addEventListener('DOMContentLoaded', function () { // запрос тр
             return val.json(); // возвращает ПРОМИС, json() вместо JSON.parse
         })// then может принимать 2 функции - первая - resolve, вторая - reject ошибка
         .then(function (output) {
-            console.log('получили из раздела Популярное:', output);
             let inner = "<h4 class='col-12 text-center text-primary'>Популярное за неделю</h4>";
 
             if (output.results.length === 0) {
@@ -200,4 +236,5 @@ document.addEventListener('DOMContentLoaded', function () { // запрос тр
             movieContainer.innerHTML = 'Упс, что-то пошло не так!';
             console.log('Ошибка ' + err);
         });
-})
+
+});
